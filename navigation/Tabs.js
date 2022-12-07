@@ -29,7 +29,6 @@ export default function Tabs() {
         options={{
           tabBarBadge: "wow",
           tabBarIcon: ({ focused, color, size }) => {
-            console.log(focused, color, size);
             return (
               <MaterialIcons name="local-movies" size={size} color={color} />
             );

@@ -1,4 +1,4 @@
-// import React from "react";
+import { useState } from "react";
 import { View, Text, ScrollView, FlatList, RefreshControl } from "react-native";
 import { useQuery, useQueryClient } from "react-query";
 import { tvApi } from "../api";
@@ -7,6 +7,7 @@ import Loader from "../components/Loader";
 import VMedia from "../components/VMedia";
 
 export default function Tv() {
+  const [refreshing, setRefreshing] = useState(false);
   const queryClient = useQueryClient();
   const {
     isLoading: isLoadingToday,
@@ -23,11 +24,11 @@ export default function Tv() {
     data: trendingData,
     isRefetching: isRefetchingTrending,
   } = useQuery(["tv", "trending"], tvApi.getTrending);
-  const onRefresh = () => {
-    queryClient.refetchQueries(["tv"]);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await queryClient.refetchQueries(["tv"]);
+    setRefreshing(false);
   };
-  const refreshing =
-    isRefetchingToday || isRefetchingTop || isRefetchingTrending;
 
   const isLoading = isLoadingToday || isLoadingTop || isLoadingTrending;
   if (isLoading) return <Loader />;

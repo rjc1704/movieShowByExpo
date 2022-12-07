@@ -50,6 +50,7 @@ const HSeperator = styled.View`
 
 export default function Movies({ navigation: { navigate } }) {
   const queryClient = useQueryClient();
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const {
     isLoading: nowPlayingLoading,
     data: nowPlayingData,
@@ -86,11 +87,11 @@ export default function Movies({ navigation: { navigate } }) {
   const keyExtractor = (item) => item.id;
 
   const isLoading = nowPlayingLoading || upcomingLoading || trendingLoading;
-  const isRefreshing =
-    isRefetchingNowPlaying || isRefetchingTrending || isRefetchingUpcoming;
 
   const onRefresh = async () => {
-    queryClient.refetchQueries(["movie"]);
+    setIsRefreshing(true);
+    await queryClient.refetchQueries(["movie"]);
+    setIsRefreshing(false);
   };
   return isLoading ? (
     <Loader />
