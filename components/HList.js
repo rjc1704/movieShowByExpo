@@ -18,11 +18,13 @@ export const HSeperator = styled.View`
 const ListContainer = styled.View`
   margin-bottom: 14px;
 `;
-export default function HList({ title, data }) {
+export default function HList({ title, data, loadMore }) {
   return (
     <ListContainer>
       <ListTitle>{title}</ListTitle>
       <FlatList
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.3}
         horizontal
         keyExtractor={(item) => item.id}
         ItemSeparatorComponent={HSeperator}
@@ -34,6 +36,7 @@ export default function HList({ title, data }) {
             posterPath={item.poster_path}
             originalTitle={item.original_name || item.original_title}
             voteAverage={item.vote_average}
+            fullData={item}
           />
         )}
       />

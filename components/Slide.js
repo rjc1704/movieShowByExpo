@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import Votes from "./Votes";
 import Poster from "./Poster";
+import { useNavigation } from "@react-navigation/native";
 
 const MovieImg = styled.Image``;
 
@@ -36,7 +37,7 @@ const Overview = styled.Text`
   margin-top: 10px;
   color: rgba(255, 255, 255, 0.6);
 `;
-const View = styled.View`
+const View = styled.TouchableOpacity`
   flex: 1;
 `;
 
@@ -48,8 +49,17 @@ const View = styled.View`
 
 export default function Slide({ movie }) {
   const isDark = useColorScheme() === "dark";
+  const navigation = useNavigation();
+  const goToDetail = () => {
+    navigation.navigate("Stack", {
+      screen: "Detail",
+      params: {
+        ...movie,
+      },
+    });
+  };
   return (
-    <View>
+    <View onPress={goToDetail}>
       <MovieImg
         style={StyleSheet.absoluteFill}
         source={{ uri: makeImgPath(movie.backdrop_path) }}

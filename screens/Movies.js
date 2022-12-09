@@ -16,7 +16,7 @@ import Poster from "../components/Poster";
 import HMedia from "../components/HMedia";
 
 import { movieApi } from "../api";
-import { useQuery, useQueryClient } from "react-query";
+import { useInfiniteQuery, useQuery, useQueryClient } from "react-query";
 import Loader from "../components/Loader";
 import HList from "../components/HList";
 
@@ -51,29 +51,29 @@ const HSeperator = styled.View`
 export default function Movies({ navigation: { navigate } }) {
   const queryClient = useQueryClient();
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const {
-    isLoading: nowPlayingLoading,
-    data: nowPlayingData,
-    isRefetching: isRefetchingNowPlaying,
-  } = useQuery(["movie", "nowPlaying"], movieApi.getNowPlaying);
+
+  const { isLoading: nowPlayingLoading, data: nowPlayingData } = useQuery(
+    ["movie", "nowPlaying"],
+    movieApi.getNowPlaying
+  );
+
   const {
     isLoading: upcomingLoading,
     data: upcomingData,
-    isRefetching: isRefetchingUpcoming,
-  } = useQuery(["movie", "upcoming"], movieApi.getUpcoming);
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery(["movie", "upcoming"], movieApi.getUpcoming, {
+    getNextPageParam: (currentPage) => {
+      const nextPage = currentPage.page + 1;
+      return nextPage > currentPage.total_pages ? null : nextPage;
+    },
+  });
+
   const {
     isLoading: trendingLoading,
     data: trendingData,
     isRefetching: isRefetchingTrending,
   } = useQuery(["movie", "trending"], movieApi.getTrending);
-
-  const renderVMedia = ({ item }) => (
-    <VMedia
-      posterPath={item.poster_path}
-      originalTitle={item.original_title}
-      voteAverage={item.vote_average}
-    />
-  );
 
   const renderHMedia = ({ item }) => (
     <HMedia
@@ -81,6 +81,7 @@ export default function Movies({ navigation: { navigate } }) {
       originalTitle={item.original_title}
       releaseDate={item.release_date}
       overview={item.overview}
+      fullData={item}
     />
   );
 
@@ -93,10 +94,17 @@ export default function Movies({ navigation: { navigate } }) {
     await queryClient.refetchQueries(["movie"]);
     setIsRefreshing(false);
   };
+  const loadMore = async () => {
+    if (hasNextPage) {
+      await fetchNextPage();
+    }
+  };
   return isLoading ? (
     <Loader />
   ) : (
     <FlatList
+      onEndReachedThreshold={0.5}
+      onEndReached={loadMore}
       refreshing={isRefreshing}
       onRefresh={onRefresh}
       ListHeaderComponent={
@@ -119,7 +127,7 @@ export default function Movies({ navigation: { navigate } }) {
           <ComingSoonTitle>Coming Soon</ComingSoonTitle>
         </>
       }
-      data={upcomingData.results}
+      data={upcomingData?.pages.map((page) => page.results).flat()}
       ItemSeparatorComponent={VSeperator}
       keyExtractor={keyExtractor}
       renderItem={renderHMedia}

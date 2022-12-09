@@ -1,8 +1,9 @@
+import { useNavigation } from "@react-navigation/native";
 import React from "react";
 import styled from "styled-components/native";
 import Poster from "./Poster";
 
-const HMovie = styled.View`
+const HMovie = styled.TouchableOpacity`
   padding: 0 30px;
   /* padding-right: 30px; */
   flex-direction: row;
@@ -36,9 +37,17 @@ export default function HMedia({
   originalTitle,
   releaseDate,
   overview,
+  fullData,
 }) {
+  const navigation = useNavigation();
+  const goToDetail = () => {
+    navigation.navigate("Stack", {
+      screen: "Detail",
+      params: { ...fullData },
+    });
+  };
   return (
-    <HMovie>
+    <HMovie onPress={goToDetail}>
       <Poster path={posterPath} />
       <HColumn>
         <Title>{originalTitle}</Title>

@@ -2,17 +2,33 @@ import React from "react";
 import styled from "styled-components/native";
 import Votes from "./Votes";
 import Poster from "./Poster";
+import { useNavigation } from "@react-navigation/native";
+import { TouchableOpacity } from "react-native";
 
-const Movie = styled.View`
+const Movie = styled.TouchableOpacity`
   align-items: center;
 `;
 const Title = styled.Text`
   color: ${(props) => props.theme.textColor};
   margin-top: 5px;
 `;
-export default function VMedia({ posterPath, originalTitle, voteAverage }) {
+export default function VMedia({
+  id,
+  isMovie,
+  posterPath,
+  originalTitle,
+  voteAverage,
+  fullData,
+}) {
+  const navigation = useNavigation();
+  const goToDetail = () => {
+    navigation.navigate("Stack", {
+      screen: "Detail",
+      params: { ...fullData },
+    });
+  };
   return (
-    <Movie>
+    <Movie onPress={goToDetail}>
       <Poster path={posterPath} />
       <Title>
         {originalTitle?.slice(0, 12)}
